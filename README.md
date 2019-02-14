@@ -122,3 +122,7 @@ TwiRole focuses on a user's rich information for prediction but might not best d
 * GETAR project supported by the National Science Foundation under Grant No. IIS-1619028
 * Twitter user classification [dataset](https://www.kaggle.com/crowdflower/twitter-user-gender-classification) on Kaggle for training and testing
 * Thanks to the developers of [Twarc](https://github.com/DocNow/twarc)
+
+## Known Errors
+
+If after running user_classifier.py and it throws and error, try sudo apt install default-jre.
