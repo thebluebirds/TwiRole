@@ -1,5 +1,6 @@
 user/*
 *.pyc
+twarc.log
 
 # macOS specific comments
 .DS_Store
