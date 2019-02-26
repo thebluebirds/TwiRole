@@ -45,7 +45,7 @@ class ResNet18(nn.Module):
     def __init__(self):
         super(ResNet18, self).__init__()
         self.resnet = models.resnet18(pretrained=True)
-        
+
         self.resnet.fc = nn.Linear(512, 3)
 
     def forward(self, x):
@@ -116,7 +116,7 @@ def user_info_crawler(screen_name, user_dir, user_profile_f, user_profileimg_f, 
 
         with open(os.path.join(user_dir, user_profile_f)) as rf:
             user_profile_json = json.load(rf)
-            
+
             if not os.path.exists(os.path.join(user_dir, user_profileimg_f)):
 
                 # extract user profile image url
@@ -187,7 +187,7 @@ def role_classifier(screen_name):
         # create a one row dataframe
         user_df = pd.DataFrame(columns=['name', 'screen_name', 'desc', 'follower', 'following'])
 
-        user_df.loc[-1] = [user_profile_json['name'], user_profile_json['screen_name'], user_profile_json['description'], 
+        user_df.loc[-1] = [user_profile_json['name'], user_profile_json['screen_name'], user_profile_json['description'],
                        user_profile_json['followers_count'], user_profile_json['friends_count']]
 
         # ============================================
@@ -219,10 +219,12 @@ def role_classifier(screen_name):
 
         classifier_1 = pickle.load(open('model/classifier_1.pkl', 'r'))
         classifier_1_predict = classifier_1.predict_proba(TML_1_testing[list(TML_1_testing)[1:]])
-        classifier_1_predict = classifier_1_predict * 100
-        data["BF"]["Male"] = classifier_1_predict[0][2]
-        data["BF"]["Female"] = classifier_1_predict[0][1]
-        data["BF"]["Brand"] = classifier_1_predict[0][0]
+
+        # Convert to percentages for output
+        classifier_1_pct = classifier_1_predict * 100
+        data["BF"]["Male"] = classifier_1_pct[0][2]
+        data["BF"]["Female"] = classifier_1_pct[0][1]
+        data["BF"]["Brand"] = classifier_1_pct[0][0]
 
         # ============================================
         # advanced feature calculation and prediction
@@ -242,10 +244,12 @@ def role_classifier(screen_name):
 
         classifier_2 = pickle.load(open('model/classifier_2.pkl', 'r'))
         classifier_2_predict = classifier_2.predict_proba(TML_2_testing[list(TML_2_testing)[1:]])
-        classifier_2_predict = classifier_2_predict * 100
-        data["AF"]["Male"] = classifier_2_predict[0][2]
-        data["AF"]["Female"] = classifier_2_predict[0][1]
-        data["AF"]["Brand"] = classifier_2_predict[0][0]
+
+        # Convert to percentages for output
+        classifier_2_pct = classifier_2_predict * 100
+        data["AF"]["Male"] = classifier_2_pct[0][2]
+        data["AF"]["Female"] = classifier_2_pct[0][1]
+        data["AF"]["Brand"] = classifier_2_pct[0][0]
 
         # ============================================
         # deep learning section
@@ -276,16 +280,18 @@ def role_classifier(screen_name):
             return np.exp(x) / np.sum(np.exp(x), axis=0)
 
         classifier_3_predict = net(image_loader(os.path.join(user_dir, user_profileimg_f))).data.cpu().numpy().tolist()
-        temp_classifier = [classifier_3_predict[0][2], classifier_3_predict[0][1], classifier_3_predict[0][0]]
-        temp_classifier = softmax(temp_classifier)
-        temp_classifier = temp_classifier * 100
-        data["CNN"]["Male"] = temp_classifier[0]
-        data["CNN"]["Female"] = temp_classifier[1]
-        data["CNN"]["Brand"] = temp_classifier[2]
+
+        # Convert to percentages for output
+        classifier_3_pct = [classifier_3_predict[0][2], classifier_3_predict[0][1], classifier_3_predict[0][0]]
+        classifier_3_pct = softmax(classifier_3_pct)
+        classifier_3_pct = classifier_3_pct * 100
+        data["CNN"]["Male"] = classifier_3_pct[0]
+        data["CNN"]["Female"] = classifier_3_pct[1]
+        data["CNN"]["Brand"] = classifier_3_pct[2]
         # ============================================
         # hybrid model prediction
         # ============================================
-        
+
         # sys.stdout.write('Hybrid Classifier \n')
         # sys.stdout.flush()
 
@@ -335,7 +341,7 @@ def main(args):
     else:
         with open(screen_name_file, 'r') as rf:
             screen_name_list = list(csv.reader(rf))
-        
+
         for idx, screen_name in enumerate(screen_name_list):
             sys.stdout.write("Task %4d: %-20s  =>  " % (idx + 1, screen_name[0]))
             sys.stdout.flush()
@@ -347,12 +353,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A Hybrid Model for Role-related User Classification on Twitter")
     parser.add_argument('-u', '--user', default=None, type=str, help="take a user's screen_name as input")
     parser.add_argument('-f', '--file', default=None, type=str, help="take a list of users' screen_names as input")
-    
+
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
-        print 
+        print
         sys.exit(1)
 
     main(args)
-
