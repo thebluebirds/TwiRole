@@ -260,6 +260,7 @@ def role_classifier(screen_name):
 
         net = ResNet18()
         net.load_state_dict(torch.load('model/classifier_3.pkl'))
+        net.eval()
 
         transform = transforms.Compose([
             transforms.Scale(224),
