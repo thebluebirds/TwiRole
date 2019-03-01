@@ -122,9 +122,6 @@ def user_info_crawler(screen_name, user_dir, user_profile_f, user_profileimg_f, 
                 # extract user profile image url
                 user_profileimg_url = user_profile_json['profile_image_url']
 
-                if user_profileimg_url:
-                    user_profileimg_url = user_profileimg_url.replace('_normal', '_bigger')
-                    # urllib.urlretrieve(user_profileimg_url, os.path.join(user_dir, user_profileimg_f))
 
                 def image_converter(user_profileimg_url):
                     tmp_file = 'user/tmp' + user_profileimg_url[-4:]
@@ -134,6 +131,10 @@ def user_info_crawler(screen_name, user_dir, user_profile_f, user_profileimg_f, 
                     rgb_im = im.convert('RGB')
                     rgb_im.save(os.path.join(user_dir, user_profileimg_f))
                     os.remove(tmp_file)
+
+             	if user_profileimg_url:
+                    user_profileimg_url = user_profileimg_url.replace('_normal', '_bigger')
+                    # urllib.urlretrieve(user_profileimg_url, os.path.join(user_dir, user_profileimg_f))
 
                 image_converter(user_profileimg_url)
 
@@ -273,7 +274,7 @@ def role_classifier(screen_name):
             image = Image.open(image_name)
             image = transform(image).float()
             image = Variable(image)
-            iamge = image.unsqueeze_(0)
+            image = image.unsqueeze_(0)
             return image
 
         def softmax(x):
@@ -296,7 +297,7 @@ def role_classifier(screen_name):
         # sys.stdout.write('Hybrid Classifier \n')
         # sys.stdout.flush()
 
-        hybrid_testing = np.concatenate((classifier_1_predict[0], classifier_2_predict[0], classifier_3_predict[0]))
+        hybrid_testing = np.concatenate((classifier_1_predict[0], classifier_2_predict[0], softmax(classifier_3_predict[0])))
 
         classifier_hybrid = pickle.load(open('model/classifier_hybrid.pkl', 'r'))
         output = classifier_hybrid.predict_proba([hybrid_testing]) * 100.0
