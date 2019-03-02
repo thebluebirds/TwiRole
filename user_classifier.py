@@ -132,7 +132,7 @@ def user_info_crawler(screen_name, user_dir, user_profile_f, user_profileimg_f, 
                     rgb_im.save(os.path.join(user_dir, user_profileimg_f))
                     os.remove(tmp_file)
 
-             	if user_profileimg_url:
+                if user_profileimg_url:
                     user_profileimg_url = user_profileimg_url.replace('_normal', '_bigger')
                     # urllib.urlretrieve(user_profileimg_url, os.path.join(user_dir, user_profileimg_f))
 
